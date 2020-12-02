@@ -31,7 +31,7 @@
  */
 
 /*
- *    ======== i2cbmi160.c ========
+ *    ======== gfg.c ========
  */
 #include <stdint.h>
 #include <stddef.h>
