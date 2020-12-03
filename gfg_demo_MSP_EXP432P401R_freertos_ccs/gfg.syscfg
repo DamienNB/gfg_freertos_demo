@@ -40,12 +40,8 @@ Power.performanceLevel1.$name = "ti_drivers_power_PowerMSP432PerfLevels2";
 Power.performanceLevel0.$name = "ti_drivers_power_PowerMSP432PerfLevels3";
 
 
-SPI1.$name               = "GFG_SPI";
-SPI1.minDmaTransferSize  = 8;
-SPI1.spi.$assign         = "EUSCI_B3";
-SPI1.spi.sclkPin.$assign = "expansion.28";
-SPI1.spi.misoPin.$assign = "expansion.30";
-SPI1.spi.mosiPin.$assign = "expansion.29";
+SPI1.$name = "GFG_SPI";
+SPI1.mode  = "Four Pin SS Active Low";
 
 /**
  * Pinmux solution for unlocked pins/peripherals. This ensures that minor changes to the automatic solver in a future
@@ -60,6 +56,11 @@ I2C1.i2c.$suggestSolution                    = "EUSCI_B1";
 I2C1.i2c.sdaPin.$suggestSolution             = "boosterpack.10";
 I2C1.i2c.sclPin.$suggestSolution             = "boosterpack.9";
 RTOS.timer0.resource.$suggestSolution        = "Timer_A0";
-SPI1.spi.dmaRxChannel.$suggestSolution       = "DMA_CH1";
-SPI1.spi.dmaTxChannel.$suggestSolution       = "DMA_CH0";
+SPI1.spi.$suggestSolution                    = "EUSCI_A1";
+SPI1.spi.sclkPin.$suggestSolution            = "boosterpack.39";
+SPI1.spi.misoPin.$suggestSolution            = "boosterpack.19";
+SPI1.spi.mosiPin.$suggestSolution            = "boosterpack.38";
+SPI1.spi.ssPin.$suggestSolution              = "boosterpack.34";
+SPI1.spi.dmaRxChannel.$suggestSolution       = "DMA_CH3";
+SPI1.spi.dmaTxChannel.$suggestSolution       = "DMA_CH2";
 SPI1.spi.dmaInterruptNumber.$suggestSolution = "DMA_INT0";

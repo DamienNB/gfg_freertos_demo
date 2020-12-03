@@ -39,6 +39,7 @@
 /* Driver Header files */
 #include <ti/drivers/GPIO.h>
 #include <ti/drivers/I2C.h>
+#include <ti/drivers/SPI.h>
 
 #include <ti/display/Display.h>
 
@@ -54,6 +55,9 @@
 I2C_Handle      i2c;
 I2C_Params      i2cParams;
 
+SPI_Handle spi;
+SPI_Params spiParams;
+
 Display_Handle display;
 
 /*
@@ -64,6 +68,7 @@ void *mainThread(void *arg0)
     /* Call driver init functions */
     GPIO_init();
     I2C_init();
+    SPI_init();
 
     /* Open the HOST display for output */
     display = Display_open(Display_Type_UART, NULL);
@@ -84,7 +89,25 @@ void *mainThread(void *arg0)
         Display_print0(display, 0, 0, "I2C Initialized!\n");
     }
 
+    SPI_Params_init(&spiParams);
+    spiParams.transferMode        = SPI_MODE_BLOCKING;
+    spiParams.mode                = SPI_MASTER;
+    spiParams.bitRate             = 8000000; // Hz
+    spiParams.dataSize            = 8;
+    spiParams.frameFormat         = SPI_POL1_PHA0;
+    spi = SPI_open(GFG_SPI, &spiParams);
+    if (spi == NULL)
+    {
+        Display_print0(display, 0, 0, "Error Initializing SPI\n");
+    }
+    else
+    {
+        Display_print0(display, 0, 0, "SPI Initialized!\n");
+    }
+
     bmi160_initialize_sensor(i2c);
+
+    gfg_fpga_initialize_driver(spi);
 
     return (0);
 }
