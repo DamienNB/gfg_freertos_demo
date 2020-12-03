@@ -1,65 +1,65 @@
-/*
- * Copyright (c) 2019-2020, Texas Instruments Incorporated
- * All rights reserved.
- *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions
- * are met:
- *
- * *  Redistributions of source code must retain the above copyright
- *    notice, this list of conditions and the following disclaimer.
- *
- * *  Redistributions in binary form must reproduce the above copyright
- *    notice, this list of conditions and the following disclaimer in the
- *    documentation and/or other materials provided with the distribution.
- *
- * *  Neither the name of Texas Instruments Incorporated nor the names of
- *    its contributors may be used to endorse or promote products derived
- *    from this software without specific prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
- * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
- * THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
- * PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR
- * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
- * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
- * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
- * OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
- * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
- * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
- * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+/**
+ * These arguments were used when this file was generated. They will be automatically applied on subsequent loads
+ * via the GUI or CLI. Run CLI with '--help' for additional information on how to override these arguments.
+ * @cliArgs --board "/ti/boards/MSP_EXP432P401R" --product "simplelink_msp432p4_sdk@3.40.01.02" --product "sail@1.50.00.00"
+ * @versions {"data":"2020090214","timestamp":"2020090214","tool":"1.6.0+1543","templates":"2020090214"}
  */
-// @cliArgs --board /ti/boards/MSP_EXP432P401R
+const BOOSTXL_SENSORS = scripting.addHardware("/ti/boards/boosterpacks/BOOSTXL-SENSORS");
 
-/*
- *  i2cbmi160.syscfg
+/**
+ * Import the modules used in this configuration.
  */
- 
-/* ======== Board ======== */
-var board = system.deviceData.board.name;
+const Display  = scripting.addModule("/ti/display/Display");
+const Display1 = Display.addInstance();
+const GPIO     = scripting.addModule("/ti/drivers/GPIO");
+const GPIO1    = GPIO.addInstance();
+const I2C      = scripting.addModule("/ti/drivers/I2C");
+const I2C1     = I2C.addInstance();
+const RTOS     = scripting.addModule("/ti/drivers/RTOS");
+const SPI      = scripting.addModule("/ti/drivers/SPI", {}, false);
+const SPI1     = SPI.addInstance();
 
-/* ======== Sensors BoosterPack ======== */
-var Sensors = scripting.addHardware("/ti/boards/boosterpacks/BOOSTXL-SENSORS");
+/**
+ * Write custom configuration values to the imported modules.
+ */
+Display1.$name      = "CONFIG_Display_0";
+Display1.$hardware  = system.deviceData.board.components.XDS110UART;
+Display1.uart.$name = "CONFIG_UART_0";
 
-/* ======== RTOS ======== */
-var RTOS = scripting.addModule("/ti/drivers/RTOS");
-RTOS.name = "TI-RTOS";
+GPIO1.$name     = "CONFIG_GPIO_BMI160_INT1";
+GPIO1.$hardware = BOOSTXL_SENSORS.components.BMI160_BMM150.subComponents.INT1;
+GPIO1.pull      = "Pull Down";
 
-/* ======== Display ======== */
-var Display = scripting.addModule("/ti/display/Display");
-var displayUART = Display.addInstance();
-displayUART.$hardware = system.deviceData.board.components.XDS110UART;
+I2C1.$name     = "CONFIG_I2C_BMI";
+I2C1.$hardware = BOOSTXL_SENSORS.components.SENSORS_I2C;
 
-/* ======== I2C ======== */
-var I2C = scripting.addModule("/ti/drivers/I2C");
-var i2c = I2C.addInstance();
-i2c.$name = "CONFIG_I2C_BMI";
-i2c.$hardware = Sensors.components.BMI160_BMM150.subComponents.I2C;
+const Power                   = scripting.addModule("/ti/drivers/Power", {}, false);
+Power.performanceLevel3.$name = "ti_drivers_power_PowerMSP432PerfLevels0";
+Power.performanceLevel2.$name = "ti_drivers_power_PowerMSP432PerfLevels1";
+Power.performanceLevel1.$name = "ti_drivers_power_PowerMSP432PerfLevels2";
+Power.performanceLevel0.$name = "ti_drivers_power_PowerMSP432PerfLevels3";
 
-/* ======== GPIO ======== */
-var GPIO = scripting.addModule("/ti/drivers/GPIO");
-var gpio1 = GPIO.addInstance();
-gpio1.$name = "CONFIG_GPIO_BMI160_INT1";
-gpio1.$hardware = Sensors.components.BMI160_BMM150.subComponents.INT1;
-gpio1.pull = "Pull Down";
-gpio1.interruptTrigger = "Rising Edge";
+
+SPI1.$name               = "GFG_SPI";
+SPI1.minDmaTransferSize  = 8;
+SPI1.spi.$assign         = "EUSCI_B3";
+SPI1.spi.sclkPin.$assign = "expansion.28";
+SPI1.spi.misoPin.$assign = "expansion.30";
+SPI1.spi.mosiPin.$assign = "expansion.29";
+
+/**
+ * Pinmux solution for unlocked pins/peripherals. This ensures that minor changes to the automatic solver in a future
+ * version of the tool will not impact the pinmux you originally saw.  These lines can be completely deleted in order to
+ * re-solve from scratch.
+ */
+Display1.uart.uart.$suggestSolution          = "EUSCI_A0";
+Display1.uart.uart.txPin.$suggestSolution    = "P1.3.GPIO/EUSCI_A0_UART.TXD/EUSCI_A0_SPI.SIMO";
+Display1.uart.uart.rxPin.$suggestSolution    = "P1.2.GPIO/EUSCI_A0_UART.RXD/EUSCI_A0_SPI.SOMI";
+GPIO1.gpioPin.$suggestSolution               = "boosterpack.5";
+I2C1.i2c.$suggestSolution                    = "EUSCI_B1";
+I2C1.i2c.sdaPin.$suggestSolution             = "boosterpack.10";
+I2C1.i2c.sclPin.$suggestSolution             = "boosterpack.9";
+RTOS.timer0.resource.$suggestSolution        = "Timer_A0";
+SPI1.spi.dmaRxChannel.$suggestSolution       = "DMA_CH1";
+SPI1.spi.dmaTxChannel.$suggestSolution       = "DMA_CH0";
+SPI1.spi.dmaInterruptNumber.$suggestSolution = "DMA_INT0";
