@@ -139,44 +139,44 @@ int_fast8_t gfg_fpga_write_triangle(uint_fast16_t point_0_x,
         GFG_FPGA_WRITE_CMD | GFG_FPGA_TRIANGLE_POINT_0_X_ADDR,
         0,
         0,
-        (point_0_x & 0xff00) >> 8u,
-        (point_0_x & 0x00ff),
+        (uint8_t) (point_0_x & 0xff00) >> 8u,
+        (uint8_t) (point_0_x & 0x00ff),
 
         GFG_FPGA_WRITE_CMD | GFG_FPGA_TRIANGLE_POINT_0_Y_ADDR,
         0,
         0,
-        (point_0_y & 0xff00) >> 8u,
-        (point_0_y & 0x00ff),
+        (uint8_t) (point_0_y & 0xff00) >> 8u,
+        (uint8_t) (point_0_y & 0x00ff),
 
         GFG_FPGA_WRITE_CMD | GFG_FPGA_TRIANGLE_POINT_1_X_ADDR,
         0,
         0,
-        (point_1_x & 0xff00) >> 8u,
-        (point_1_x & 0x00ff),
+        (uint8_t) (point_1_x & 0xff00) >> 8u,
+        (uint8_t) (point_1_x & 0x00ff),
 
         GFG_FPGA_WRITE_CMD | GFG_FPGA_TRIANGLE_POINT_1_Y_ADDR,
         0,
         0,
-        (point_1_y & 0xff00) >> 8u,
-        (point_1_y & 0x00ff),
+        (uint8_t) (point_1_y & 0xff00) >> 8u,
+        (uint8_t) (point_1_y & 0x00ff),
 
         GFG_FPGA_WRITE_CMD | GFG_FPGA_TRIANGLE_POINT_2_X_ADDR,
         0,
         0,
-        (point_2_x & 0xff00) >> 8u,
-        (point_2_x & 0x00ff),
+        (uint8_t) (point_2_x & 0xff00) >> 8u,
+        (uint8_t) (point_2_x & 0x00ff),
 
         GFG_FPGA_WRITE_CMD | GFG_FPGA_TRIANGLE_POINT_2_Y_ADDR,
         0,
         0,
-        (point_2_y & 0xff00) >> 8u,
-        (point_2_y & 0x00ff),
+        (uint8_t) (point_2_y & 0xff00) >> 8u,
+        (uint8_t) (point_2_y & 0x00ff),
 
         GFG_FPGA_WRITE_CMD | GFG_FPGA_TRIANGLE_COLOR_ADDR,
         0,
         0,
-        (color & 0x0f00) >> 8u,
-        (color & 0x00ff)
+        (uint8_t) (color & 0x0f00) >> 8u,
+        (uint8_t) (color & 0x00ff)
     };
 
     SPI_Transaction spiTransaction;
