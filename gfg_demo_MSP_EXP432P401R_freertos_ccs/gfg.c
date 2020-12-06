@@ -31,10 +31,18 @@
  */
 
 /*
+ * Source Code Derivative Author: Damien Nikola Bobrek
+ */
+
+/*
  *    ======== gfg.c ========
  */
 #include <stdint.h>
 #include <stddef.h>
+
+/* POSIX Header file */
+#include <semaphore.h>
+#include <mqueue.h>
 
 /* Driver Header files */
 #include <ti/drivers/GPIO.h>
@@ -46,8 +54,10 @@
 /* Module Header */
 #include <ti/sail/bmi160/bmi160.h>
 
-/* Example Header file */
+/* Demo header files */
+#include "mqueue_settings.h"
 #include "bmi160_support.h"
+#include "gfg_fpga_support.h"
 
 /* Driver configuration */
 #include "ti_drivers_config.h"
@@ -59,6 +69,8 @@ SPI_Handle spi;
 SPI_Params spiParams;
 
 Display_Handle display;
+
+mqd_t magnetometer_data_queue;
 
 /*
  *  ======== mainThread ========
@@ -94,7 +106,7 @@ void *mainThread(void *arg0)
     spiParams.mode                = SPI_MASTER;
     spiParams.bitRate             = 8000000; // Hz
     spiParams.dataSize            = 8;
-    spiParams.frameFormat         = SPI_POL1_PHA0;
+    spiParams.frameFormat         = SPI_POL1_PHA1; //SPI_POL1_PHA0;
     spi = SPI_open(GFG_SPI, &spiParams);
     if (spi == NULL)
     {
@@ -104,6 +116,16 @@ void *mainThread(void *arg0)
     {
         Display_print0(display, 0, 0, "SPI Initialized!\n");
     }
+
+    mqd_t magnetometer_queue;
+    struct mq_attr queue_attr;
+
+    queue_attr.mq_flags   = 0;
+    queue_attr.mq_maxmsg  = MAX_QUEUE_MESSAGES;
+    queue_attr.mq_msgsize = MAX_QUEUE_MESSAGE_SIZE;
+    queue_attr.mq_curmsgs = 0;
+
+    magnetometer_queue = mq_open(QUEUE_NAME, O_CREAT | O_RDONLY, 0644, &queue_attr);
 
     bmi160_initialize_sensor(i2c);
 
