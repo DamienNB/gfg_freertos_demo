@@ -60,9 +60,10 @@
 #include <ti/drivers/dpl/DebugP.h>
 
 /* POSIX Header files */
+#include <mqueue.h>
 #include <pthread.h>
-#include <unistd.h>
 #include <semaphore.h>
+#include <unistd.h>
 
 /* TI-Drivers Header files */
 #include <ti/drivers/GPIO.h>
@@ -76,7 +77,8 @@
 /* Driver configuration */
 #include "ti_drivers_config.h"
 
-/* example includes */
+/* Support code includes */
+#include "mqueue_settings.h"
 #include "bmi160_support.h"
 
 /************** I2C buffer length ******/
@@ -191,9 +193,21 @@ static void bmi160Callback(uint_least8_t index)
 
 static void* displayTask(void *arg0)
 {
+    mqd_t magnetometer_queue;
+
+    magnetometer_queue = mq_open(QUEUE_NAME, O_WRONLY);
 
 	while (1) {
 		sem_wait(&displaySem);
+
+		// Send the magnetometer data to the GFG FPGA software using an mqueue
+		char buffer[MAX_QUEUE_MESSAGE_SIZE] = { 0 };
+		((signed int *)buffer)[0] = (signed int)magxyz.x;
+		((signed int *)buffer)[1] = (signed int)magxyz.y;
+		((signed int *)buffer)[2] = (signed int)magxyz.z;
+
+		mq_send(magnetometer_queue, buffer, MAX_QUEUE_MESSAGE_SIZE, 0);
+
 		Display_print3(display, 0, 0, "accelo: x = %d, y = %d,z = %d\n",
 						accelxyz.x, accelxyz.y, accelxyz.z);
 		Display_print3(display, 0, 0, "gyro  : x = %d, y = %d,z = %d\n",
