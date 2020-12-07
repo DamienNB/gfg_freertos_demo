@@ -117,7 +117,7 @@ void *mainThread(void *arg0)
         Display_print0(display, 0, 0, "SPI Initialized!\n");
     }
 
-    mqd_t magnetometer_queue;
+    mqd_t accelerometer_queue;
     struct mq_attr queue_attr;
 
     queue_attr.mq_flags   = 0;
@@ -125,7 +125,7 @@ void *mainThread(void *arg0)
     queue_attr.mq_msgsize = MAX_QUEUE_MESSAGE_SIZE;
     queue_attr.mq_curmsgs = 0;
 
-    magnetometer_queue = mq_open(QUEUE_NAME, O_CREAT | O_RDONLY, 0644, &queue_attr);
+    accelerometer_queue = mq_open(QUEUE_NAME, O_CREAT | O_RDONLY, 0644, &queue_attr);
 
     bmi160_initialize_sensor(i2c);
 

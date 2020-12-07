@@ -193,20 +193,20 @@ static void bmi160Callback(uint_least8_t index)
 
 static void* displayTask(void *arg0)
 {
-    mqd_t magnetometer_queue;
+    mqd_t accelerometer_queue;
 
-    magnetometer_queue = mq_open(QUEUE_NAME, O_WRONLY);
+    accelerometer_queue = mq_open(QUEUE_NAME, O_WRONLY);
 
 	while (1) {
 		sem_wait(&displaySem);
 
-		// Send the magnetometer data to the GFG FPGA software using an mqueue
+		// Send the accelerometer data to the GFG FPGA software using an mqueue
 		char buffer[MAX_QUEUE_MESSAGE_SIZE] = { 0 };
-		((signed int *)buffer)[0] = (signed int)magxyz.x;
-		((signed int *)buffer)[1] = (signed int)magxyz.y;
-		((signed int *)buffer)[2] = (signed int)magxyz.z;
+		((signed short int *)buffer)[0] = (signed short int)accelxyz.x;
+		((signed short int *)buffer)[1] = (signed short int)accelxyz.y;
+		((signed short int *)buffer)[2] = (signed short int)accelxyz.z;
 
-		mq_send(magnetometer_queue, buffer, MAX_QUEUE_MESSAGE_SIZE, 0);
+		mq_send(accelerometer_queue, buffer, MAX_QUEUE_MESSAGE_SIZE, 0);
 
 		Display_print3(display, 0, 0, "accelo: x = %d, y = %d,z = %d\n",
 						accelxyz.x, accelxyz.y, accelxyz.z);

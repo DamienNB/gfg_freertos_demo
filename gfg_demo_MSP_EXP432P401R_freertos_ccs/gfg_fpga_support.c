@@ -5,6 +5,8 @@
  *      Author: Damien
  */
 
+#include <math.h>
+
 /* POSIX Header files */
 #include <mqueue.h>
 #include <pthread.h>
@@ -36,22 +38,54 @@ pthread_t gfg_task;
  */
 static void* gfg_fpga_task(void *arg0) {
 
-    mqd_t magnetometer_queue;
+    mqd_t accelerometer_queue;
 
-    magnetometer_queue = mq_open(QUEUE_NAME, O_RDONLY);
+    accelerometer_queue = mq_open(QUEUE_NAME, O_RDONLY);
 
     uint_fast16_t color = 0;
+
     while(1) {
         char buffer[MAX_QUEUE_MESSAGE_SIZE+1] = { 0 };
 
-        mq_receive(magnetometer_queue, (char *)buffer, MAX_QUEUE_MESSAGE_SIZE, NULL);
+        mq_receive(accelerometer_queue, (char *)buffer, MAX_QUEUE_MESSAGE_SIZE, NULL);
 
-        signed int magnetometer_x = ((signed int *)buffer)[0];
-        signed int magnetometer_y = ((signed int *)buffer)[1];
-        signed int magnetometer_z = ((signed int *)buffer)[2];
+        signed short int accelerometer_x = ((signed short int *)buffer)[0];
+        signed short int accelerometer_y = ((signed short int *)buffer)[1];
+        signed short int accelerometer_z = ((signed short int *)buffer)[2];
 
-        Display_print3(display, 0, 0, "magno message : x = %d, y = %d,z = %d\n",
-                       magnetometer_x, magnetometer_y, magnetometer_z);
+        float cos_theta =  accelerometer_z;
+        float sin_theta =  -(accelerometer_y + accelerometer_x)/2;
+
+        // normalize the vector
+        float magnitude = sqrtf((cos_theta*cos_theta) + (sin_theta*sin_theta));
+        cos_theta /= magnitude;
+        sin_theta /= magnitude;
+
+        const float point_0_scalar_x =   00.0f;
+        const float point_0_scalar_y =  -15.0f;
+        const float point_1_scalar_x =  -20.0f;
+        const float point_1_scalar_y =   15.0f;
+        const float point_2_scalar_x =   20.0f;
+        const float point_2_scalar_y =   15.0f;
+
+        const unsigned int offset_x = 40;
+        const unsigned int offset_y = 30;
+
+        long point_0_x = lroundf( (cos_theta     * point_0_scalar_x) + (sin_theta * point_0_scalar_y)) + offset_x;
+        long point_0_y = lroundf(((-1*sin_theta) * point_0_scalar_x) + (cos_theta * point_0_scalar_y)) + offset_y;
+        long point_1_x = lroundf( (cos_theta     * point_1_scalar_x) + (sin_theta * point_1_scalar_y)) + offset_x;
+        long point_1_y = lroundf(((-1*sin_theta) * point_1_scalar_x) + (cos_theta * point_1_scalar_y)) + offset_y;
+        long point_2_x = lroundf( (cos_theta     * point_2_scalar_x) + (sin_theta * point_2_scalar_y)) + offset_x;
+        long point_2_y = lroundf(((-1*sin_theta) * point_2_scalar_x) + (cos_theta * point_2_scalar_y)) + offset_y;
+
+        Display_print3(display, 0, 0, "\naccelo message   : x = %d, y = %d, z = %d",
+                       accelerometer_x, accelerometer_y, accelerometer_z);
+        Display_print2(display, 0, 0, "Triangle point 0 : x0 = %d, y0 = %d",
+                       point_0_x, point_0_y);
+        Display_print2(display, 0, 0, "Triangle point 1 : x1 = %d, y1 = %d",
+                       point_1_x, point_1_y);
+        Display_print2(display, 0, 0, "Triangle point 2 : x2 = %d, y2 = %d\n",
+                       point_2_x, point_2_y);
 
         color += 37;
 
@@ -60,7 +94,9 @@ static void* gfg_fpga_task(void *arg0) {
             color %= 37;
         }
 
-        gfg_fpga_write_triangle(11, 10, 50, 10, 30, 60, color);
+        gfg_fpga_write_triangle(point_0_x, point_0_y, point_1_x, point_1_y,
+                                point_2_x, point_2_y, color);
+//        gfg_fpga_write_triangle(11, 10, 50, 10, 30, 60, color);
 
 //        sleep(1);
 //        usleep(33333u);
